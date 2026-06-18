@@ -1,0 +1,50 @@
+name: Deploy to Google Apps Script
+
+# Pushes Code.gs + appsscript.json to your Apps Script project on every commit
+# to main, using clasp. This does NOT run the monitor — the monitor runs inside
+# Apps Script on its weekly time-driven trigger. This job only deploys the code.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'Code.gs'
+      - 'appsscript.json'
+      - '.clasp.json'
+      - '.github/workflows/deploy.yml'
+  workflow_dispatch: {}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install clasp
+        run: npm install -g @google/clasp@2.4.2
+
+      - name: Write clasp credentials
+        # CLASPRC_JSON secret = the contents of your local ~/.clasprc.json
+        # produced by running `clasp login` once on your machine.
+        run: |
+          if [ -z "${{ secrets.CLASPRC_JSON }}" ]; then
+            echo "::error::Missing CLASPRC_JSON secret. See README.md."
+            exit 1
+          fi
+          printf '%s' '${{ secrets.CLASPRC_JSON }}' > "$HOME/.clasprc.json"
+
+      - name: Verify .clasp.json has a real scriptId
+        run: |
+          if grep -q "PASTE_YOUR_SCRIPT_ID_HERE" .clasp.json; then
+            echo "::error::Edit .clasp.json and set your real scriptId. See README.md."
+            exit 1
+          fi
+
+      - name: Push to Apps Script
+        run: clasp push --force

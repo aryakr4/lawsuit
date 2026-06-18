@@ -1,0 +1,10 @@
+# NEVER commit clasp credentials — they grant access to your Google account.
+.clasprc.json
+~/.clasprc.json
+
+# Node (only used locally for clasp)
+node_modules/
+npm-debug.log*
+
+# OS noise
+.DS_Store
