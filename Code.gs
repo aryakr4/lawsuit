@@ -70,22 +70,64 @@ const CONFIG = {
   fetchTimeoutMs: 20000,
 
   // ---------------------------------------------------------------------
-  // YOUR ELIGIBILITY PROFILE  --  *** EXAMPLE VALUES, REPLACE THESE ***
-  // Only put names of states/companies/brands you have actually used or are
-  // associated with. More accurate buckets = fewer false positives.
-  // Keep entries lowercase; matching is case-insensitive anyway.
+  // YOUR ELIGIBILITY PROFILE
+  //
+  // This ships PRE-LOADED with a broad starter set of the most common U.S.
+  // settlement targets (major banks, carriers, retailers, apps, breaches).
+  // It will catch most big national settlements out of the box.
+  //
+  // *** YOU MUST STILL PERSONALIZE THE TOP FOUR BUCKETS ***  -> states,
+  // employers, schools, cars are placeholders. Fill in your own.
+  //
+  // PRUNE anything below that you've never actually used — every keyword you
+  // don't have a real connection to just creates false "possible" matches.
+  // ADD your own personal brands (your specific bank, carrier, doctor, etc.).
+  //
+  // Keep entries lowercase and short/distinctive; matching is case-insensitive
+  // substring matching, so "verizon" also catches "Verizon Wireless".
+  // Do NOT add SSN, DOB, account numbers, claim numbers, or passwords.
   // ---------------------------------------------------------------------
   profile: {
-    states:    ['california', 'new york'],                 // states you lived in
+    // ---- PERSONALIZE THESE (placeholders) -------------------------------
+    states:    ['california', 'new york'],                 // states you LIVED in
     employers: ['acme corp', 'globex'],                    // current/past employers
-    banks:     ['wells fargo', 'chase', 'venmo', 'paypal'],// banks / financial apps
-    providers: ['verizon', 'comcast', 'at&t', 'xfinity'],  // phone / internet
-    retailers: ['target', 'walmart', 'amazon'],            // retailers
-    apps:      ['facebook', 'instagram', 'tiktok', 'google'], // apps / websites used
-    cars:      ['honda', 'toyota'],                        // cars owned
-    health:    ['kaiser', 'blue cross', 'cvs'],            // health insurance/providers
-    schools:   ['ucla', 'state university'],               // schools / universities
-    breaches:  ['equifax', 'experian'],                    // data-breach notices you got
+    schools:   ['ucla', 'state university'],               // colleges/universities
+    cars:      ['honda', 'toyota'],                        // car makes you owned/leased
+
+    // ---- STARTER SET: common settlement targets (prune what's not yours) -
+    banks: [
+      'wells fargo', 'chase', 'jpmorgan', 'bank of america', 'citibank', 'citi',
+      'capital one', 'us bank', 'pnc', 'truist', 'td bank', 'discover',
+      'american express', 'amex', 'navy federal', 'synchrony',
+      'paypal', 'venmo', 'cash app', 'zelle', 'chime', 'robinhood', 'coinbase',
+      'credit karma', 'experian', 'equifax', 'transunion',
+    ],
+    providers: [
+      'verizon', 'at&t', 'att', 't-mobile', 'tmobile', 'sprint',
+      'comcast', 'xfinity', 'spectrum', 'charter', 'cox', 'centurylink',
+      'frontier', 'optimum', 'metropcs', 'cricket', 'boost mobile', 'mint mobile',
+    ],
+    retailers: [
+      'amazon', 'walmart', 'target', 'costco', 'best buy', 'home depot', "lowe's",
+      'cvs', 'walgreens', 'kroger', 'safeway', 'macys', 'kohls', 'nike',
+      'ticketmaster', 'instacart', 'doordash', 'uber', 'lyft', 'ebay', 'etsy',
+    ],
+    apps: [
+      'facebook', 'meta', 'instagram', 'whatsapp', 'tiktok', 'snapchat',
+      'google', 'youtube', 'twitter', 'x corp', 'linkedin', 'reddit',
+      'netflix', 'spotify', 'hulu', 'disney', 'zoom', 'plaid',
+    ],
+    health: [
+      'kaiser', 'blue cross', 'blue shield', 'anthem', 'aetna', 'cigna',
+      'unitedhealthcare', 'united healthcare', 'humana', 'molina', 'centene',
+      'cvs health', 'walgreens', 'quest diagnostics', 'labcorp', 'goodrx',
+    ],
+    breaches: [
+      'equifax', 'experian', 'transunion', 't-mobile', 'at&t', 'verizon',
+      'capital one', 'anthem', 'marriott', 'yahoo', 'facebook', 'meta',
+      'moveit', 'mover', 'change healthcare', 'uber', 'plaid', '23andme',
+      'comcast', 'lastpass', 'progressive', 'public storage', 'usaa',
+    ],
   },
 };
 
