@@ -38,7 +38,7 @@
  * ========================================================================= */
 const CONFIG = {
   // Where the digest is sent. Leave "" to use the account running the script.
-  email: '',
+  email: 'aryakrish4@gmail.com',
 
   // Spreadsheet tab used to remember what we've already emailed about.
   sheetName: 'Seen',
@@ -349,7 +349,10 @@ function sendDigestEmail(buckets) {
           'Always read the official notice and verify your eligibility manually before filing a claim. It is not a substitute for legal advice.</p>';
   html += '</div>';
 
-  GmailApp.sendEmail(to, subject, htmlToText_(html), { htmlBody: html, name: 'Settlement Monitor' });
+  // MailApp (send-only) instead of GmailApp so we avoid the restricted
+  // full-mailbox scope (https://mail.google.com/) that Google hard-blocks for
+  // unverified personal scripts. MailApp.sendEmail supports htmlBody too.
+  MailApp.sendEmail(to, subject, htmlToText_(html), { htmlBody: html, name: 'Settlement Monitor' });
   Logger.log('Digest sent to %s', to);
 }
 
@@ -432,16 +435,20 @@ function testRun() {
  * Google Sheet helpers (the "Seen" dedup store)
  * ========================================================================= */
 function getSeenSheet_() {
-  // Use the bound spreadsheet if there is one; otherwise create/find a
-  // standalone spreadsheet stored in Drive under a known name.
+  // Use the bound spreadsheet if there is one; otherwise use a standalone
+  // spreadsheet whose ID we remember in Script Properties. Looking it up by ID
+  // (instead of searching Drive by name) means we only need the narrow
+  // `drive.file` scope, not full Drive access — keeps us off restricted scopes.
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   if (!ss) {
-    const fileName = 'Settlement Monitor — Seen';
-    const files = DriveApp.getFilesByName(fileName);
-    if (files.hasNext()) {
-      ss = SpreadsheetApp.open(files.next());
-    } else {
-      ss = SpreadsheetApp.create(fileName);
+    const props = PropertiesService.getScriptProperties();
+    const savedId = props.getProperty('SEEN_SS_ID');
+    if (savedId) {
+      try { ss = SpreadsheetApp.openById(savedId); } catch (e) { ss = null; }
+    }
+    if (!ss) {
+      ss = SpreadsheetApp.create('Settlement Monitor — Seen');
+      props.setProperty('SEEN_SS_ID', ss.getId());
     }
   }
   var sheet = ss.getSheetByName(CONFIG.sheetName);
