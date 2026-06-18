@@ -88,44 +88,50 @@ const CONFIG = {
   // Do NOT add SSN, DOB, account numbers, claim numbers, or passwords.
   // ---------------------------------------------------------------------
   profile: {
-    // ---- PERSONALIZE THESE (placeholders) -------------------------------
-    states:    ['california', 'new york'],                 // states you LIVED in
-    employers: ['acme corp', 'globex'],                    // current/past employers
-    schools:   ['ucla', 'state university'],               // colleges/universities
-    cars:      ['honda', 'toyota'],                        // car makes you owned/leased
+    // ---- Your personal info (parsed from what you told me) ---------------
+    states: ['oregon', 'washington'],          // Eugene OR; Vancouver WA
 
-    // ---- STARTER SET: common settlement targets (prune what's not yours) -
-    banks: [
-      'wells fargo', 'chase', 'jpmorgan', 'bank of america', 'citibank', 'citi',
-      'capital one', 'us bank', 'pnc', 'truist', 'td bank', 'discover',
-      'american express', 'amex', 'navy federal', 'synchrony',
-      'paypal', 'venmo', 'cash app', 'zelle', 'chime', 'robinhood', 'coinbase',
-      'credit karma', 'experian', 'equifax', 'transunion',
-    ],
-    providers: [
-      'verizon', 'at&t', 'att', 't-mobile', 'tmobile', 'sprint',
-      'comcast', 'xfinity', 'spectrum', 'charter', 'cox', 'centurylink',
-      'frontier', 'optimum', 'metropcs', 'cricket', 'boost mobile', 'mint mobile',
-    ],
+    // You worked at some VC firms but didn't name them. Add the firm names
+    // here (lowercase) so wage/employment settlements can match, e.g.:
+    // employers: ['acme ventures', 'foo capital'],
+    employers: [],
+
+    schools: ['university of oregon', 'westview high school'],
+
+    cars: ['subaru', 'honda'],                 // Subaru Legacy, Honda Civic
+
+    // ---- What you actually use (tailored to cut false matches) -----------
+    banks: ['chase', 'coinbase', 'robinhood'],
+
+    providers: ['at&t', 'att'],
+
     retailers: [
-      'amazon', 'walmart', 'target', 'costco', 'best buy', 'home depot', "lowe's",
-      'cvs', 'walgreens', 'kroger', 'safeway', 'macys', 'kohls', 'nike',
-      'ticketmaster', 'instacart', 'doordash', 'uber', 'lyft', 'ebay', 'etsy',
+      'fred meyer', 'market of choice', 'safeway', 'amazon',
+      // Eyewear — you mentioned a past glasses-purchase settlement but not the
+      // seller. These are common eyewear settlement targets; keep the one(s)
+      // you actually bought from and delete the rest:
+      'warby parker', 'eyebuydirect', 'zenni', 'lenscrafters',
+      'glasses.com', '1-800 contacts', 'visionworks', 'luxottica',
+      'eyeglasses', 'eyewear',
     ],
+
     apps: [
-      'facebook', 'meta', 'instagram', 'whatsapp', 'tiktok', 'snapchat',
-      'google', 'youtube', 'twitter', 'x corp', 'linkedin', 'reddit',
-      'netflix', 'spotify', 'hulu', 'disney', 'zoom', 'plaid',
+      'tiktok', 'instagram', 'snapchat', 'youtube', 'telegram', 'duo mobile',
+      'alltrails', 'outlook', 'chatgpt', 'openai', 'linkedin', 'granola',
+      'uber', 'parking kitty', 'blackmagic',
     ],
-    health: [
-      'kaiser', 'blue cross', 'blue shield', 'anthem', 'aetna', 'cigna',
-      'unitedhealthcare', 'united healthcare', 'humana', 'molina', 'centene',
-      'cvs health', 'walgreens', 'quest diagnostics', 'labcorp', 'goodrx',
-    ],
+
+    // You didn't mention a health insurer/pharmacy. Add yours here if you want
+    // to catch healthcare settlements, e.g.: ['providence', 'kaiser', 'cvs'].
+    health: [],
+
+    // Data breaches can affect you even if you're not a current customer, so
+    // this stays broad. Add any breach-notice senders you've received.
     breaches: [
-      'equifax', 'experian', 'transunion', 't-mobile', 'at&t', 'verizon',
+      'chase', 'at&t', 'coinbase',
+      'equifax', 'experian', 'transunion', 't-mobile', 'verizon',
       'capital one', 'anthem', 'marriott', 'yahoo', 'facebook', 'meta',
-      'moveit', 'mover', 'change healthcare', 'uber', 'plaid', '23andme',
+      'moveit', 'change healthcare', 'uber', 'plaid', '23andme',
       'comcast', 'lastpass', 'progressive', 'public storage', 'usaa',
     ],
   },
@@ -233,7 +239,7 @@ function scoreEligibility(item) {
     const weight = CONFIG.weights[bucket] || 1;
     CONFIG.profile[bucket].forEach(function (keyword) {
       const kw = String(keyword).toLowerCase().trim();
-      if (kw && haystack.indexOf(kw) !== -1) {
+      if (kw && keywordHit_(haystack, kw)) {
         score += weight;
         reasons.push({ bucket: bucket, keyword: kw });
       }
@@ -470,6 +476,18 @@ function appendSeen_(sheet, rows) {
 /* =========================================================================
  * Small parsing / formatting utilities
  * ========================================================================= */
+/**
+ * keywordHit_(haystack, keyword) -> boolean
+ * Word-boundary-aware match: the keyword must NOT be embedded inside a larger
+ * alphanumeric run. Prevents false positives like "att" inside "battery" or
+ * "chase" inside "purchasers". Both args should already be lowercase.
+ */
+function keywordHit_(haystack, keyword) {
+  const esc = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const re = new RegExp('(^|[^a-z0-9])' + esc + '([^a-z0-9]|$)', 'i');
+  return re.test(haystack);
+}
+
 function firstMatch(text, re) {
   const m = text.match(re);
   return m ? m[1] : '';
