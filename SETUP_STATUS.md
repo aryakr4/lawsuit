@@ -2,6 +2,20 @@
 
 Last updated: 2026-06-19
 
+## ✅ LIVE — fully working as of 2026-06-19
+Both repo secrets are set, a manual run succeeded end-to-end: the digest email
+sent (`Digest sent to ***`) and the bot committed an updated `seen.json`
+(commit `257d1cc`). No Advanced Protection block — App Password worked.
+It now runs automatically every Monday. Nothing left to do unless tuning the
+profile (see "Optional later" below).
+
+Note: the "Top Class Actions — Settlements" category feed 403s from GitHub's
+datacenter IPs (works from a home IP). It's caught and non-fatal — the main
+Top Class Actions feed already covers settlements. Harmless; clean up if desired.
+
+---
+### Original setup notes (kept for history)
+
 ## ⚡ Architecture changed: Apps Script → GitHub Actions
 The Google Apps Script path was abandoned. Authorizing the script kept hitting
 Google's app-verification wall ("This app is blocked" → 403 "not an approved
