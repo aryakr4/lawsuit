@@ -412,7 +412,10 @@ def html_to_text(html):
 
 def send_digest_email(buckets):
     sender = os.environ.get("GMAIL_ADDRESS", "").strip()
-    password = os.environ.get("GMAIL_APP_PASSWORD", "").strip()
+    # Google shows the App Password as 4 space-separated groups; a paste can
+    # include regular OR non-breaking (\xa0) spaces. SMTP AUTH needs ASCII with
+    # no whitespace, so strip every whitespace char, not just the ends.
+    password = re.sub(r"\s+", "", os.environ.get("GMAIL_APP_PASSWORD", ""))
     to = CONFIG["email"] or sender
     if not sender or not password:
         print("ERROR: GMAIL_ADDRESS / GMAIL_APP_PASSWORD env not set.", file=sys.stderr)
