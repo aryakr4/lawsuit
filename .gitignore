@@ -8,3 +8,7 @@ npm-debug.log*
 
 # OS noise
 .DS_Store
+
+# Python
+__pycache__/
+*.pyc

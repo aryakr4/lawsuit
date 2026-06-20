@@ -1,0 +1,49 @@
+name: Weekly settlement monitor
+
+# Runs monitor.py on a weekly cron. Fetches settlement RSS feeds, scores them
+# against the profile in monitor.py, emails a digest via Gmail SMTP, and commits
+# the updated seen.json back so we don't re-email the same items.
+#
+# Required repo secrets (Settings -> Secrets and variables -> Actions):
+#   GMAIL_ADDRESS       your Gmail address (sender + recipient)
+#   GMAIL_APP_PASSWORD  a 16-char Google App Password (NOT your login password)
+
+on:
+  schedule:
+    # 15:00 UTC Mondays = 8am PDT (summer) / 7am PST (winter). GitHub cron has no
+    # DST, so this drifts one hour in winter — fine for a weekly digest.
+    - cron: '0 15 * * 1'
+  workflow_dispatch: {}   # lets you run it on demand from the Actions tab
+
+permissions:
+  contents: write          # needed to commit seen.json back to the repo
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Run monitor
+        env:
+          GMAIL_ADDRESS: ${{ secrets.GMAIL_ADDRESS }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+        run: python monitor.py
+
+      - name: Commit updated seen.json
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if ! git diff --quiet -- seen.json; then
+            git add seen.json
+            git commit -m "chore: update seen settlements [skip ci]"
+            git push
+          else
+            echo "No change to seen.json"
+          fi

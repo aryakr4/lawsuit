@@ -1,41 +1,55 @@
 # Setup status — where I left off
 
-Last updated: 2026-06-18
+Last updated: 2026-06-19
+
+## ⚡ Architecture changed: Apps Script → GitHub Actions
+The Google Apps Script path was abandoned. Authorizing the script kept hitting
+Google's app-verification wall ("This app is blocked" → 403 "not an approved
+tester") on the personal Gmail, and there was no clean way through it.
+
+The monitor now runs as a **GitHub Action on a weekly cron** (`monitor.py` +
+`.github/workflows/monitor.yml`). Same RSS feeds, same eligibility profile, same
+scoring and HTML digest — but it emails via **Gmail SMTP with an App Password**,
+which needs no OAuth consent screen, no app verification, and no test users.
+Dedup state lives in `seen.json`, committed back to the repo each run.
+
+`Code.gs` / `appsscript.json` / `.clasp.json` are kept only as historical
+reference. The old `deploy.yml` workflow was deleted.
 
 ## ✅ Done
-- Apps Script project created and code deployed to it.
-  - Editor: https://script.google.com/d/1MHKdryljeSqSJ0KEIjXnBz7-iex-YWHiL2YWmhBMMGfmu5ooyOFsP-iN/edit
-  - Script ID: `1MHKdryljeSqSJ0KEIjXnBz7-iex-YWHiL2YWmhBMMGfmu5ooyOFsP-iN`
-- GitHub repo wired up; auto-deploy works.
-  - GitHub Action runs `clasp push` on every push to `main` (last run: success).
-  - Repo secret `CLASPRC_JSON` is set.
-  - `.clasp.json` has the real Script ID.
-- Profile personalized (Eugene/Vancouver, U of Oregon, Westview HS, Subaru/Honda,
-  Chase/Coinbase/Robinhood, AT&T, Fred Meyer/Market of Choice/Safeway/Amazon, etc.).
-- Email switched to `MailApp` + minimal non-restricted OAuth scopes.
+- `monitor.py` written and smoke-tested locally: feeds fetch, 100 unique items
+  parse, scoring works (e.g. Meta/TikTok/YouTube social-media settlement = 8/strong),
+  HTML + plaintext digest render without error.
+- Feeds fixed: `classaction.org` has no working RSS anymore (dropped). Now using
+  two live Top Class Actions feeds (main + the lawsuit-settlements category).
+- Weekly workflow `.github/workflows/monitor.yml` added (cron `0 15 * * 1` =
+  8am PDT / 7am PST Mondays; also runnable on demand via "Run workflow").
+- `seen.json` seeded as `{}`.
 
-## ⛔ Blocked here — resume at this step
-Authorizing the script fails with **"This app is blocked"** on aryakrish4@gmail.com.
-Cause: personal Gmail + the script's default Cloud project has no configured OAuth
-consent screen, so Google blocks the unverified app.
+## ⛔ Blocked here — ONE manual step left (resume here)
+The Action needs two repo secrets before it can send email. They are NOT set yet.
 
-### Fix (one-time, ~5 min in console.cloud.google.com, signed in as aryakrish4@gmail.com)
-1. Create a Cloud project (e.g. "Settlement Monitor").
-2. APIs & Services → OAuth consent screen → Audience **External**, fill app name +
-   support email, **Create**. Leave publishing status = **Testing** (don't publish).
-3. **Add yourself as a Test user** (`aryakrish4@gmail.com`). ← the key step.
-4. APIs & Services → Library → enable **Apps Script API**.
-5. Copy the project **NUMBER** (digits, not the ID).
-6. Apps Script editor → Project Settings (⚙️) → Google Cloud Platform (GCP) Project
-   → Change project → paste the project number → Set project.
-7. Editor → run `setupWeeklyTrigger` → "Google hasn't verified this app" →
-   Advanced → Go to (unsafe) → Allow.
-8. Run `testRun` → check inbox for "Weekly settlement eligibility digest".
+### What the user must do (~3 min)
+1. Turn on **2-Step Verification** for aryakrish4@gmail.com if it isn't already:
+   https://myaccount.google.com/security
+2. Create a **Google App Password**:
+   https://myaccount.google.com/apppasswords
+   → name it "Settlement Monitor" → Google shows a **16-character password**.
+   (If the page says App Passwords aren't available, 2-Step Verification is off,
+   or Advanced Protection is on — App Passwords are disabled under Advanced
+   Protection, which would be the new blocker.)
+3. Add two repo secrets at
+   https://github.com/aryakr4/lawsuit/settings/secrets/actions :
+   - `GMAIL_ADDRESS` = `aryakrish4@gmail.com`
+   - `GMAIL_APP_PASSWORD` = the 16-char password (spaces optional, they're ignored)
+4. Trigger a test run: repo → **Actions** tab → "Weekly settlement monitor" →
+   **Run workflow**. Check inbox for "Weekly settlement eligibility digest" and
+   confirm a "update seen settlements" commit appears.
 
-After that, it emails automatically every Monday ~8am Pacific.
+After that it runs automatically every Monday.
 
-## Optional later
-- Add VC firm names to `CONFIG.profile.employers`.
-- Pick the actual eyewear seller in `CONFIG.profile.retailers` and delete the rest.
-- Add a health insurer/pharmacy to `CONFIG.profile.health` if you want those matches.
-- Adjust schedule by editing `setupWeeklyTrigger()` and re-running it.
+## Optional later (profile tuning — same TODOs as before)
+- Add VC firm names to `CONFIG["profile"]["employers"]` in `monitor.py`.
+- Pick the actual eyewear seller in `retailers` and delete the rest.
+- Add a health insurer/pharmacy to `health` if you want those matches.
+- Adjust the schedule by editing the `cron` line in `monitor.yml`.
