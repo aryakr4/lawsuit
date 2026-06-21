@@ -2,6 +2,14 @@
 
 Date: 2026-06-18
 
+> ⚠️ **SUPERSEDED (2026-06-19).** This design targets Google Apps Script + `clasp`,
+> which was abandoned after authorizing the script kept hitting Google's
+> app-verification wall. The monitor now runs as a GitHub Action (`monitor.py` +
+> `.github/workflows/monitor.yml`), emailing via Gmail SMTP with an App Password.
+> The goal, eligibility profile, scoring, dedup, and scam-warning requirements below
+> still hold; only the runtime/email/CI mechanics changed. See `README.md` and
+> `SETUP_STATUS.md` for the current architecture. Kept for historical context.
+
 ## Goal
 
 A free, server-less weekly monitor that searches public class-action / settlement
