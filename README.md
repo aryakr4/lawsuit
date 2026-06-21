@@ -108,10 +108,9 @@ Edit `CONFIG` in [`monitor.py`](monitor.py) and push to `main`:
 | `.github/workflows/monitor.yml` | Weekly cron + commits `seen.json` back |
 | `seen.json` | Dedup state, updated by the bot each run |
 | `SETUP_STATUS.md` | Where setup was left off (now live) |
-| `Code.gs`, `appsscript.json`, `.clasp.json` | **Historical only** — the abandoned Google Apps Script implementation (see note below) |
 
-> **Note:** This project originally ran inside Google Apps Script (`Code.gs`), but
-> that path was abandoned because authorizing the script kept hitting Google's
-> app-verification wall. It now runs as a GitHub Action with `monitor.py`. The
-> `Code.gs` / `appsscript.json` / `.clasp.json` files are kept only as historical
-> reference and are not used.
+> **Note:** This project originally ran inside Google Apps Script, but that path was
+> abandoned because authorizing the script kept hitting Google's app-verification
+> wall. It now runs as a GitHub Action with `monitor.py`. The old Apps Script files
+> (`Code.gs`, `appsscript.json`, `.clasp.json`) have been removed; see git history if
+> you ever need them.

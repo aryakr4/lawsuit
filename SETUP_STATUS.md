@@ -27,8 +27,8 @@ scoring and HTML digest — but it emails via **Gmail SMTP with an App Password*
 which needs no OAuth consent screen, no app verification, and no test users.
 Dedup state lives in `seen.json`, committed back to the repo each run.
 
-`Code.gs` / `appsscript.json` / `.clasp.json` are kept only as historical
-reference. The old `deploy.yml` workflow was deleted.
+`Code.gs` / `appsscript.json` / `.clasp.json` and the old `deploy.yml` workflow
+have been removed (2026-06-20). See git history if you ever need them.
 
 ## ✅ Done
 - `monitor.py` written and smoke-tested locally: feeds fetch, 100 unique items
