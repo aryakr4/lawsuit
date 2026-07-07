@@ -55,6 +55,7 @@ CONFIG = {
         "banks": 3,
         "providers": 2,
         "retailers": 2,
+        "products": 2,
         "apps": 2,
         "cars": 3,
         "health": 3,
@@ -87,6 +88,18 @@ CONFIG = {
             "warby parker", "eyebuydirect", "zenni", "lenscrafters",
             "glasses.com", "1-800 contacts", "visionworks", "luxottica",
             "eyeglasses", "eyewear",
+        ],
+        # Specific products/brands you own or buy — for defect, false-advertising,
+        # and mislabeling class actions that name a brand + product. Brand-specific
+        # terms only (lowercase); avoid generic category words to keep noise down.
+        "products": [
+            "darigold",        # milk / dairy
+            "shea moisture",   # conditioner / hair care
+            "jif",             # peanut butter (brand is "Jif")
+            "macbook",         # Apple MacBook (M4)
+            "fujifilm",        # camera
+            "canon",           # camera
+            "kodiak",          # Kodiak Cakes protein products
         ],
         "apps": [
             "tiktok", "instagram", "snapchat", "youtube", "telegram", "duo mobile",
