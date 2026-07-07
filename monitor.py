@@ -100,6 +100,8 @@ CONFIG = {
             "fujifilm",        # camera
             "canon",           # camera
             "kodiak",          # Kodiak Cakes protein products
+            "fairlife",        # protein shakes / milk
+            "airpods",         # Apple AirPods
         ],
         "apps": [
             "tiktok", "instagram", "snapchat", "youtube", "telegram", "duo mobile",
